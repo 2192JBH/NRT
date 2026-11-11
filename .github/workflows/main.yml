@@ -6,21 +6,27 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+
       - name: ZIP 풀기
         run: unzip -o project.zip -d app_project
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
-      - uses: android-actions/setup-android@v3
+
+      - name: SDK 라이선스 동의
+        run: yes | "$(ls -d $ANDROID_HOME/cmdline-tools/*/bin/sdkmanager | head -1)" --licenses || true
+
       - name: APK 빌드
         run: |
           cd "$(dirname "$(find app_project -name gradlew | head -1)")"
           chmod +x gradlew
           ./gradlew assembleDebug --stacktrace
+
       - uses: actions/upload-artifact@v4
         with:
           name: apk
