@@ -1,0 +1,27 @@
+name: Build APK
+on: workflow_dispatch   # Actions 탭에서 수동 실행
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ZIP 풀기
+        run: unzip project.zip -d app_project
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      - name: APK 빌드
+        working-directory: app_project
+        run: ./gradlew assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: app_project/app/build/outputs/apk/debug/*.apk
